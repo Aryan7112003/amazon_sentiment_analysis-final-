@@ -6,13 +6,16 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 # Load dataset
 try:
     reviews_df = pd.read_csv("E:/NLP(Sentimate analysis project)/245_1.csv")
+    if reviews_df.empty:
+        st.error("Dataset is empty. Please check the file contents.")
+        reviews_df = pd.DataFrame(columns=['reviews.text', 'sentiment'])
 except FileNotFoundError:
     st.error("Dataset file not found. Please check the file path.")
     reviews_df = pd.DataFrame(columns=['reviews.text', 'sentiment'])
 
 # Prepare the training data
-X = reviews_df['reviews.text'].fillna("")
-y = reviews_df.get('sentiment', pd.Series([1] * len(reviews_df)))  # Default neutral if sentiment column missing
+X = reviews_df['review_text'].fillna("") if not reviews_df.empty else ["sample review"]
+y = reviews_df.get('sentiment', pd.Series([1] * len(reviews_df))) if not reviews_df.empty else pd.Series([1])
 
 # Convert text data into TF-IDF features
 vectorizer = TfidfVectorizer(max_features=5000)
