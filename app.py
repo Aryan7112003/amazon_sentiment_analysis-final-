@@ -5,7 +5,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 # Load dataset
 try:
-    reviews_df = pd.read_csv("E:/NLP(Sentimate analysis project)/245_1.csv")
+    reviews_df = pd.read_csv("E:\NLP AMAZON REVIEW(sentiment analysis)\245_1.csv")
     if reviews_df.empty:
         st.error("Dataset is empty. Please check the file contents.")
         reviews_df = pd.DataFrame(columns=['reviews.text', 'sentiment'])
