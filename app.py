@@ -1,29 +1,6 @@
 import streamlit as st
-import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_extraction.text import TfidfVectorizer
-
-# Load dataset
-try:
-    reviews_df = pd.read_csv("E:\NLP AMAZON REVIEW(sentiment analysis)\245_1.csv")
-    if reviews_df.empty:
-        st.error("Dataset is empty. Please check the file contents.")
-        reviews_df = pd.DataFrame(columns=['reviews.text', 'sentiment'])
-except FileNotFoundError:
-    st.error("Dataset file not found. Please check the file path.")
-    reviews_df = pd.DataFrame(columns=['reviews.text', 'sentiment'])
-
-# Prepare the training data
-X = reviews_df['review_text'].fillna("") if not reviews_df.empty else ["sample review"]
-y = reviews_df.get('sentiment', pd.Series([1] * len(reviews_df))) if not reviews_df.empty else pd.Series([1])
-
-# Convert text data into TF-IDF features
-vectorizer = TfidfVectorizer(max_features=5000)
-X_tfidf = vectorizer.fit_transform(X)
-
-# Train a Random Forest model
-model = RandomForestClassifier(n_estimators=100, random_state=42)
-model.fit(X_tfidf, y)
 
 # Define keyword-based sentiment check
 positive_words = ["good", "excellent", "amazing", "fantastic", "love", "wonderful", "perfect", "best", "satisfied", "awesome"]
@@ -39,7 +16,16 @@ def get_sentiment_from_keywords(review):
         return "Negative"
     elif any(word in review_lower for word in neutral_words):
         return "Neutral"
-    return None
+    return "Neutral"  # Default to neutral if no keywords are found
+
+# Train a simple Random Forest model with placeholder data
+vectorizer = TfidfVectorizer(max_features=5000)
+sample_reviews = ["good product", "bad experience", "just okay"]
+sample_labels = [2, 0, 1]  # Positive = 2, Negative = 0, Neutral = 1
+X_tfidf = vectorizer.fit_transform(sample_reviews)
+
+model = RandomForestClassifier(n_estimators=100, random_state=42)
+model.fit(X_tfidf, sample_labels)
 
 st.title("Amazon Review Sentiment Analysis")
 st.write("Enter a review and get the sentiment prediction!")
@@ -52,11 +38,11 @@ if st.button("Predict Sentiment"):
         sentiment = get_sentiment_from_keywords(user_input)
         
         # If no sentiment from keywords, use model prediction
-        if sentiment is None:
+        if sentiment == "Neutral":
             input_tfidf = vectorizer.transform([user_input])
             prediction = model.predict(input_tfidf)[0]
             sentiment_map = {0: "Negative", 1: "Neutral", 2: "Positive"}
-            sentiment = sentiment_map.get(prediction, "Unknown")
+            sentiment = sentiment_map.get(prediction, "Neutral")
         
         # Display result
         st.markdown(f"### Sentiment: {sentiment}")
